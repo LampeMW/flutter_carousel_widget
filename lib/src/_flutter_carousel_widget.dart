@@ -292,21 +292,27 @@ class FlutterCarouselState extends State<FlutterCarousel>
 
   /// The method that build enlarge wrapper
   Widget _getEnlargeWrapper(Widget? child,
-      {double? width, double? height, double? scale}) {
+      {double? width, double? height, double? scale, double? opacity}) {
     /// If [enlargeStrategy] is [CenterPageEnlargeStrategy.height]
     if (widget.options.enlargeStrategy == CenterPageEnlargeStrategy.height) {
-      return SizedBox(
-        width: width,
-        height: height,
-        child: child,
+      return Opacity(
+        opacity: opacity ?? 1.0,
+        child: SizedBox(
+          width: width,
+          height: height,
+          child: child,
+        ),
       );
     }
     return Transform.scale(
       scale: scale,
-      child: SizedBox(
-        width: width,
-        height: height,
-        child: child,
+      child: Opacity(
+        opacity: opacity ?? 1.0,
+        child: SizedBox(
+          width: width,
+          height: height,
+          child: child,
+        ),
       ),
     );
   }
@@ -365,6 +371,36 @@ class FlutterCarouselState extends State<FlutterCarousel>
               : widget.itemBuilder!(context, index, idx),
           builder: (BuildContext context, Widget? child) {
             var distortionValue = 1.0;
+            var fadeValue = 1.0;
+
+            if (widget.options.fadeOtherPages != null &&
+                widget.options.fadeOtherPages == true) {
+              var itemOffset = 0.0;
+              var position = _carouselState?.pageController?.position;
+              if (position != null &&
+                  position.hasPixels &&
+                  position.hasContentDimensions) {
+                var page = _carouselState?.pageController?.page;
+                if (page != null) {
+                  itemOffset = page - idx;
+                }
+              } else {
+                var storageContext = _carouselState!
+                    .pageController!.position.context.storageContext;
+                final previousSavedPosition = PageStorage.of(storageContext)
+                    .readState(storageContext) as double?;
+                if (previousSavedPosition != null) {
+                  itemOffset = previousSavedPosition - idx.toDouble();
+                } else {
+                  itemOffset =
+                      _carouselState!.realPage.toDouble() - idx.toDouble();
+                }
+              }
+
+              /// Calculate [distortionRatio]
+              final fadeRatio = 1 - (itemOffset.abs() * 0.4).clamp(0.0, 1.0);
+              fadeValue = Curves.easeOut.transform(fadeRatio);
+            }
 
             /// if `enlargeCenterPage` is true, we must calculate the carousel
             /// item's height to display the visual effect
@@ -421,6 +457,7 @@ class FlutterCarouselState extends State<FlutterCarousel>
                   child,
                   width: distortionValue * MediaQuery.of(context).size.width,
                   scale: distortionValue,
+                  opacity: fadeValue,
                 ),
               );
             }

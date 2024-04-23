@@ -19,6 +19,7 @@ class CarouselOptions {
     this.autoPlayAnimationDuration = const Duration(milliseconds: 300),
     this.autoPlayCurve = Curves.easeInCubic,
     this.enlargeCenterPage = false,
+    this.fadeOtherPages = false,
     this.controller,
     this.onPageChanged,
     this.onScrolled,
@@ -105,6 +106,8 @@ class CarouselOptions {
   ///
   /// Defaults to false.
   final bool? enlargeCenterPage;
+
+  final bool? fadeOtherPages;
 
   /// Use `enlargeStrategy` to determine which method to enlarge the center page.
   final CenterPageEnlargeStrategy enlargeStrategy;
@@ -224,6 +227,7 @@ class CarouselOptions {
     Duration? autoPlayAnimationDuration,
     Curve? autoPlayCurve,
     bool? enlargeCenterPage,
+    bool? fadeOtherPages,
     Axis? scrollDirection,
     CarouselController? carouselController,
     Function(int index, CarouselPageChangedReason reason)? onPageChanged,
@@ -261,6 +265,7 @@ class CarouselOptions {
           autoPlayAnimationDuration ?? this.autoPlayAnimationDuration,
       autoPlayCurve: autoPlayCurve ?? this.autoPlayCurve,
       enlargeCenterPage: enlargeCenterPage ?? this.enlargeCenterPage,
+      fadeOtherPages: fadeOtherPages ?? this.fadeOtherPages,
       onPageChanged: onPageChanged ?? this.onPageChanged,
       onScrolled: onScrolled ?? this.onScrolled,
       physics: physics ?? this.physics,
